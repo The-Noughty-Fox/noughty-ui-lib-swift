@@ -48,9 +48,11 @@ public struct Backdrop<Backdrop: View>: ViewModifier {
         containerSize.height - screenBackdropHeight
     }
     
-    public init(config: BackdropConfig,
-         isShown: Binding<Bool>,
-         @ViewBuilder _ backdrop: @escaping BackdropContentConstructor) {
+    public init(
+        config: BackdropConfig,
+        isShown: Binding<Bool>,
+        @ViewBuilder _ backdrop: @escaping BackdropContentConstructor
+    ) {
         self.config = config
         self.backdrop = backdrop
         self._isShown = isShown
@@ -62,22 +64,33 @@ public struct Backdrop<Backdrop: View>: ViewModifier {
             content
             VStack {
                 if isShown {
-                    backdrop(.init(offset: screenOffset,
-                                   height: screenBackdropHeight,
-                                   stage: stage), $isDragEnabled)
-                        .onAppear {
-                            backdropHeight = height(for: config.initialStage)
-                        }
-                        .transition(.backDrop(target: containerSize.height + contentSafeAreaInset.bottom))
-                        .gesture(dragGesture, including: isDragEnabled ? .all : .none)
+                    backdrop(
+                        .init(
+                            offset: screenOffset,
+                            height: screenBackdropHeight,
+                            stage: stage
+                        ),
+                        $isDragEnabled
+                    )
+                    .onAppear {
+                        backdropHeight = height(for: config.initialStage)
+                    }
+                    .transition(.backDrop(target: containerSize.height + contentSafeAreaInset.bottom))
+                    .gesture(
+                        dragGesture,
+                        including: isDragEnabled ? .all : .none
+                    )
                 }
             }
         }
         .ignoresSafeArea(.container, edges: .bottom)
         .observeSize($containerSize)
-        .onPreferenceChange(SafeAreaInsetsKey.self, perform: { value in
-            self.contentSafeAreaInset = value ?? .init()
-        })
+        .onPreferenceChange(
+            SafeAreaInsetsKey.self,
+            perform: { value in
+                self.contentSafeAreaInset = value ?? .init()
+            }
+        )
     }
 }
 
@@ -97,7 +110,7 @@ extension Backdrop {
     }
     
     func setCurrentDragTranslation(_ translation: CGSize) {
-        // We flip it so we can represent it as hight, i.e positive values are up, negative are down
+        // We flip it so we can represent it as height, i.e. positive values are up, negative are down
         let flippedTranslation = translation.height * -1
         let totalHeight = flippedTranslation + backdropHeight
         
@@ -167,12 +180,19 @@ extension Backdrop {
 }
 
 extension View {
-    public func backdrop<BackdropContent: View>(isShown: Binding<Bool>,
-                                         config: BackdropConfig = .default,
-                                         content: @escaping (_ config: BackDropContentConfig, _ dragEnabled: Binding<Bool>) -> BackdropContent) -> some View {
-        self.modifier(Backdrop(config: config,
-                               isShown: isShown,
-                               content))
+    public func backdrop<BackdropContent: View>(
+        isShown: Binding<Bool>,
+        config: BackdropConfig = .default,
+        content: @escaping (_ config: BackDropContentConfig,
+                            _ dragEnabled: Binding<Bool>) -> BackdropContent
+    ) -> some View {
+        self.modifier(
+            Backdrop(
+                config: config,
+                isShown: isShown,
+                content
+            )
+        )
     }
 }
 
@@ -182,7 +202,6 @@ struct Backdrop_wrapper: View {
     var body: some View {
         Color.black
             .ignoresSafeArea()
-//            .padding(.bottom, 100)
             .overlay(
                 Button("Show") {
                     withAnimation {
@@ -190,9 +209,11 @@ struct Backdrop_wrapper: View {
                     }
                 }
                 .padding()
-                .frame(maxWidth: .infinity,
-                       maxHeight: .infinity,
-                       alignment: .topTrailing)
+                .frame(
+                    maxWidth: .infinity,
+                    maxHeight: .infinity,
+                    alignment: .topTrailing
+                )
             )
             .backdrop(isShown: $isShown, content: backdropContent)
     }

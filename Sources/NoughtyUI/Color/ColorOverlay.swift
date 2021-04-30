@@ -4,6 +4,16 @@ public struct ColorOverlay {
     public let color: Color
     public let blendMode: BlendMode
     public let oacity: Double
+    
+    public init(
+        color: Color,
+        blendMode: BlendMode,
+        oacity: Double
+    ) {
+        self.color = color
+        self.blendMode = blendMode
+        self.oacity = oacity
+    }
 }
 
 extension View {

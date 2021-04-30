@@ -32,17 +32,22 @@ public struct SwipeToDeleteModifier<DeleteView: View>: ViewModifier {
     @State private var stage: SwipeStage = .initial
     @GestureState private var isActive = false
     
-    public init(onDelete: @escaping () -> (),
-                deleteView: @escaping (DeleteViewConfig) -> DeleteView,
-                limit: CGFloat = 100,
-                actionLimit: CGFloat = 150) {
+    public init(
+        onDelete: @escaping () -> (),
+        deleteView: @escaping (DeleteViewConfig) -> DeleteView,
+        limit: CGFloat = 100,
+        actionLimit: CGFloat = 150
+    ) {
         self.onDelete = onDelete
         self.deleteView = deleteView
         self.limit = limit
         self.actionLimit = limit + actionLimit
     }
     
-    private func progress(for offset: CGFloat, limit: CGFloat) -> CGFloat {
+    private func progress(
+        for offset: CGFloat,
+        limit: CGFloat
+    ) -> CGFloat {
         max(min(abs(offset/limit), 1), 0.01)
     }
     
@@ -57,9 +62,11 @@ public struct SwipeToDeleteModifier<DeleteView: View>: ViewModifier {
     public func body(content: Content) -> some View {
         ZStack(alignment: Alignment(horizontal: .trailing, vertical: .center)) {
             deleteView(
-                .init(progress: progress(for: screenTranslation.width, limit: limit),
-                      availableWidth: max(limit, -screenTranslation.width),
-                      swipeStage: stage)
+                .init(
+                    progress: progress(for: screenTranslation.width, limit: limit),
+                    availableWidth: max(limit, -screenTranslation.width),
+                    swipeStage: stage
+                )
             ).onTapGesture {
                 onDelete()
             }
@@ -188,18 +195,23 @@ private extension SwipeToDeleteModifier {
 public struct SwipeToDeleteModifier_Previews: PreviewProvider {
     public static var previews: some View {
         Color.blue
-            .frame(width: 300, height: 60)
+            .frame(
+                width: 300,
+                height: 60
+            )
             .modifier(
-                SwipeToDeleteModifier(onDelete: {},
-                                      deleteView: { config in
-                                        Text("Delete")
-                                            .padding()
-                                            .aspectRatio(1, contentMode: .fill)
-                                            .background(Color.red)
-                                            .foregroundColor(Color.white)
-                                            .cornerRadius(8)
-                                            .scaleEffect(config.progress)
-                                      })
+                SwipeToDeleteModifier(
+                    onDelete: {},
+                    deleteView: { config in
+                        Text("Delete")
+                            .padding()
+                            .aspectRatio(1, contentMode: .fill)
+                            .background(Color.red)
+                            .foregroundColor(Color.white)
+                            .cornerRadius(8)
+                            .scaleEffect(config.progress)
+                    }
+                )
             )
     }
 }

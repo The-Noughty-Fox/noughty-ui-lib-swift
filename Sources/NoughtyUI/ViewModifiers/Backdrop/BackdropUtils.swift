@@ -46,12 +46,14 @@ public struct BackdropConfig {
     public let fullHeight: BackDropDimension
     public let initialStage: BackdropStage
     
-    public init(canBeExpanded: Bool = true,
-                canBeMinimized: Bool = true,
-                minimizedHeight: BackDropDimension = .relative(0.1),
-                halfHeight: BackDropDimension = .relative(0.5),
-                fullHeight: BackDropDimension = .relative(0.9),
-                initialStage: BackdropStage = .half) {
+    public init(
+        canBeExpanded: Bool = true,
+        canBeMinimized: Bool = true,
+        minimizedHeight: BackDropDimension = .relative(0.1),
+        halfHeight: BackDropDimension = .relative(0.5),
+        fullHeight: BackDropDimension = .relative(0.9),
+        initialStage: BackdropStage = .half
+    ) {
         self.canBeExpanded = canBeExpanded
         self.canBeMinimized = canBeMinimized
         self.minimizedHeight = minimizedHeight

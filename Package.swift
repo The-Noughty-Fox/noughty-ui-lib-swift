@@ -9,12 +9,14 @@ let package = Package(
     products: [
         .library(
             name: "NoughtyUI",
-            targets: ["NoughtyUI"]),
+            targets: ["NoughtyUI"]
+        ),
     ],
     targets: [
         .target(
             name: "NoughtyUI",
-            dependencies: []),
+            dependencies: []
+        ),
         .testTarget(
             name: "NoughtyUITests",
             dependencies: ["NoughtyUI"]),
