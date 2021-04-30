@@ -22,6 +22,8 @@ public struct Backdrop<Backdrop: View>: ViewModifier {
     
     let config: BackdropConfig
     
+    @GestureState private var isGestureActive: Bool = false
+    
     // change it to a binding
     @State private var isDragEnabled: Bool = true
     // a model height of backdrop when you let go of it
@@ -68,7 +70,8 @@ public struct Backdrop<Backdrop: View>: ViewModifier {
                         .init(
                             offset: screenOffset,
                             height: screenBackdropHeight,
-                            stage: stage
+                            stage: stage,
+                            gestureInProgress: isGestureActive
                         ),
                         $isDragEnabled
                     )
@@ -98,6 +101,9 @@ public struct Backdrop<Backdrop: View>: ViewModifier {
 extension Backdrop {
     var dragGesture: some Gesture {
         DragGesture(coordinateSpace: .local)
+            .updating($isGestureActive) { value, state, transaction in
+                state = true
+            }
             .onChanged(dragChanged)
             .onEnded(dragEnded)
     }

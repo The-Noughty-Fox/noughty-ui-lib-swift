@@ -34,6 +34,19 @@ public struct BackDropContentConfig {
     public var offset: CGFloat
     public var height: CGFloat
     public var stage: BackdropStage
+    public var gestureInProgress: Bool
+    
+    public init(
+        offset: CGFloat,
+        height: CGFloat,
+        stage: BackdropStage,
+        gestureInProgress: Bool
+    ) {
+        self.offset = offset
+        self.height = height
+        self.stage = stage
+        self.gestureInProgress = gestureInProgress
+    }
 }
 
 /// Config for the behaviour of the backdrop
