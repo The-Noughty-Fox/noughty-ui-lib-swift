@@ -62,38 +62,38 @@ public struct Backdrop<Backdrop: View>: ViewModifier {
     
     @ViewBuilder
     public func body(content: Content) -> some View {
-        ZStack {
-            content
-            VStack {
-                if isShown {
-                    backdrop(
-                        .init(
-                            offset: screenOffset,
-                            height: screenBackdropHeight,
-                            stage: stage,
-                            gestureInProgress: isGestureActive
-                        ),
-                        $isDragEnabled
-                    )
-                    .onAppear {
-                        backdropHeight = height(for: config.initialStage)
-                    }
-                    .transition(.backDrop(target: containerSize.height + contentSafeAreaInset.bottom))
-                    .gesture(
-                        dragGesture,
-                        including: isDragEnabled ? .all : .none
-                    )
+        content
+            .observeSize($containerSize)
+            .onPreferenceChange(
+                SafeAreaInsetsKey.self,
+                perform: { value in
+                    self.contentSafeAreaInset = value ?? .init()
                 }
-            }
-        }
-        .ignoresSafeArea(.container, edges: .bottom)
-        .observeSize($containerSize)
-        .onPreferenceChange(
-            SafeAreaInsetsKey.self,
-            perform: { value in
-                self.contentSafeAreaInset = value ?? .init()
-            }
-        )
+            )
+            .overlay(
+                VStack {
+                    if isShown {
+                        backdrop(
+                            .init(
+                                offset: screenOffset,
+                                height: screenBackdropHeight,
+                                stage: stage,
+                                gestureInProgress: isGestureActive
+                            ),
+                            $isDragEnabled
+                        )
+                        .onAppear {
+                            backdropHeight = height(for: config.initialStage)
+                        }
+                        .transition(.backDrop(target: containerSize.height + contentSafeAreaInset.bottom))
+                        .gesture(
+                            dragGesture,
+                            including: isDragEnabled ? .all : .none
+                        )
+                    }
+                }
+                .ignoresSafeArea(.container, edges: .bottom)
+            )
     }
 }
 
@@ -227,6 +227,7 @@ struct Backdrop_wrapper: View {
     @ViewBuilder
     func backdropContent(config: BackDropContentConfig, dragEnabled: Binding<Bool>) -> some View {
         Text("\(config.height), \(config.offset)")
+            .frame(maxHeight: .infinity)
         .defaultBackdropContainer(config: config, showChevron: true)
     }
 }
