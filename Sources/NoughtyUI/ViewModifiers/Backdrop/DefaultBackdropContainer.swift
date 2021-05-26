@@ -22,8 +22,8 @@ public struct DefaultBackdropContainer: ViewModifier {
         config: BackDropContentConfig,
         backgroundColor: Color = .white,
         cornerRadius: CGFloat = 24,
-        showChevron: Bool = true,
         dragBehaviour: DragBehaviour = .offset,
+        showChevron: Bool = true,
         chevronColor: @escaping (BackdropStage) -> Color
     ) {
         self.config = config
@@ -108,6 +108,7 @@ public extension View {
     func defaultBackdropContainer(
         config: BackDropContentConfig,
         backgroundColor: Color = .white,
+        dragBehaviour: DefaultBackdropContainer.DragBehaviour = .offset,
         cornerRadius: CGFloat = 8,
         showChevron: Bool = true,
         chevronColor: @escaping (BackdropStage) -> Color = { _ in .white }
@@ -117,6 +118,7 @@ public extension View {
                 config: config,
                 backgroundColor: backgroundColor,
                 cornerRadius: cornerRadius,
+                dragBehaviour: dragBehaviour,
                 showChevron: showChevron,
                 chevronColor: chevronColor
             )

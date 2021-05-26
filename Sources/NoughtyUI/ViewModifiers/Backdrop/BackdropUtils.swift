@@ -82,5 +82,3 @@ extension BackdropConfig {
     public static var halfOnly: Self = .init(canBeExpanded: false,
                                              canBeMinimized: false)
 }
-
-
