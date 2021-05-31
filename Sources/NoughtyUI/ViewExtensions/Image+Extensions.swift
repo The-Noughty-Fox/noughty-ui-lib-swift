@@ -25,8 +25,11 @@ extension Image {
             self
                 .resizable()
                 .scaledToFill()
-                .frame(width: dimensionsToRespect.width ? proxy.size.width : nil,
-                       height: dimensionsToRespect.height ? proxy.size.height : nil, alignment: .center)
+                .frame(
+                    width: dimensionsToRespect.width ? proxy.size.width : nil,
+                    height: dimensionsToRespect.height ? proxy.size.height : nil,
+                    alignment: .center
+                )
         }
     }
 }
