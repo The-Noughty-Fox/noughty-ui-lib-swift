@@ -57,11 +57,13 @@ public struct SegmentPicker<T, ID: Hashable, EachContent: View >: DynamicViewCon
             isSelected: isSelected,
             forEachContent: { index, item, isSelected in
                 forEachContent(index, item, isSelected)
-                    .matchedGeometryEffect(id: "\(index)", in: ns, isSource: true)
+                    .matchedGeometryEffect(id: "\(index)", in: ns, anchor: .bottom, isSource: true)
                     .preference(key: SelectedItemId.self, value: isSelected ? "\(index)" : nil)
             }
-        ).onPreferenceChange(SelectedItemId.self) { value in
-            if geometryEffectID == "" {
+        )
+        .padding(.bottom, barHeight) // for bar to fit with alignment bottom in overlay
+        .onPreferenceChange(SelectedItemId.self) { value in
+            if geometryEffectID == "" { // first time, no animation
                 geometryEffectID = value ?? ""
             } else {
                 withAnimation(.spring()) {
@@ -69,17 +71,16 @@ public struct SegmentPicker<T, ID: Hashable, EachContent: View >: DynamicViewCon
                 }
             }
         }
-        // overlayPreference did not work...
         .overlay(
-            Capsule()
-                .fill(barBackgoundColor)
-                .frame(height: barHeight)
-                .overlay(
-                    Capsule()
-                        .fill(barForegroundColor)
-                        .frame(height: barHeight)
-                        .matchedGeometryEffect(id: geometryEffectID, in: ns, isSource: false)
-                ),
+            ZStack {
+                Capsule()
+                    .fill(barBackgoundColor)
+                    .frame(height: barHeight)
+                Capsule()
+                    .fill(barForegroundColor)
+                    .frame(height: barHeight)
+                    .matchedGeometryEffect(id: geometryEffectID, in: ns, anchor: .top, isSource: false)
+            },
             alignment: .bottom
         )
     }
