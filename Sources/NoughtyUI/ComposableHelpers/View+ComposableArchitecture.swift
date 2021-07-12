@@ -26,7 +26,8 @@ extension Reducer {
             ._pullback(
                 state: OptionalPath(selection).appending(path: tag),
                 action: toPresentationAction.appending(path: /PresentationAction.isPresented),
-                environment: toLocalEnvironment),
+                environment: toLocalEnvironment,
+                breakpointOnNil: false),
           self,
           Reducer<State, PresentationAction<LocalAction>, Void> { state, action, _ in
             if case .onDismiss = action {
