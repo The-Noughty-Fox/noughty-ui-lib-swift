@@ -4,21 +4,27 @@
 import PackageDescription
 
 let package = Package(
-    name: "noughty-ui-lib-swift",
-    platforms: [.iOS(.v14) ],
+    name: "NoughtyUI",
+    platforms: [.iOS(.v14), .macOS(.v11)],
     products: [
         .library(
             name: "NoughtyUI",
             targets: ["NoughtyUI"]
         ),
     ],
+    dependencies: [
+        .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", .branch("iso"))
+    ],
     targets: [
         .target(
             name: "NoughtyUI",
-            dependencies: []
+            dependencies: [
+            .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
+        ]
         ),
         .testTarget(
             name: "NoughtyUITests",
-            dependencies: ["NoughtyUI"]),
+            dependencies: ["NoughtyUI"]
+        ),
     ]
 )
