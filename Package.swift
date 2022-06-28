@@ -5,26 +5,15 @@ import PackageDescription
 
 let package = Package(
     name: "NoughtyUI",
-    platforms: [.iOS(.v14), .macOS(.v11)],
+    platforms: [.iOS(.v14)],
     products: [
-        .library(
-            name: "NoughtyUI",
-            targets: ["NoughtyUI"]
-        ),
+        .library(name: "NoughtyUI", targets: ["NoughtyUI"])
     ],
     dependencies: [
-        .package(url: "https://github.com/pointfreeco/swift-composable-architecture.git", .branch("iso"))
+        .package(url: "https://github.com/roberthein/TinyConstraints.git", from: "4.0.0")
     ],
     targets: [
-        .target(
-            name: "NoughtyUI",
-            dependencies: [
-            .product(name: "ComposableArchitecture", package: "swift-composable-architecture")
-        ]
-        ),
-        .testTarget(
-            name: "NoughtyUITests",
-            dependencies: ["NoughtyUI"]
-        ),
+        .target(name: "NoughtyUI", dependencies: [.byNameItem(name: "TinyConstraints", condition: .none)]),
+        .testTarget(name: "NoughtyUITests", dependencies: ["NoughtyUI"])
     ]
 )
