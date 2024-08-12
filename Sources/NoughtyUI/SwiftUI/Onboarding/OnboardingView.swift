@@ -37,12 +37,12 @@ public struct OnboardingView<Content: View>: View {
 }
 
 public struct OnboardingConfig {
-    let screensCount: Int
-    @Binding var currentStep: Int
-    let label: OnboardingConfig.Label
-    let onEndAction: () -> ()
+    public let screensCount: Int
+    @Binding public var currentStep: Int
+    public let label: OnboardingConfig.Label
+    public let onEndAction: () -> ()
     
-    struct Label: View {
+    public struct Label: View {
         public init<Content: View>(content: Content) {
             body = AnyView(content)
         }
