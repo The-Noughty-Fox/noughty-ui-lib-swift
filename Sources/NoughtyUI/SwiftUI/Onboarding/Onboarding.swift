@@ -6,17 +6,18 @@
 //
 import SwiftUI
 
-struct Onboarding<T, Container, Page>: View where  Container: View, Page: View {
+public struct Onboarding<T, Container, Page>: View where  Container: View, Page: View {
+
     @State var items: [T]
     var currentItem: T
     var page: (T) -> Page
-    var container: (T, @escaping (T) -> Page) ->  Container
+    var container: (T,  @escaping (T) -> Page) ->  Container
 
-    init(
+    public init(
         items: [T],
         currentItem: T,
         page: @escaping (T) -> Page,
-        container: @escaping (T, @escaping (T) -> Page) ->  Container
+        container: @escaping (T,  @escaping (T) -> Page) ->  Container
     ) {
         self.items = items
         self.currentItem = currentItem
@@ -25,9 +26,10 @@ struct Onboarding<T, Container, Page>: View where  Container: View, Page: View {
     }
 
     @ViewBuilder
-    var body: some View {
+    public var body: some View {
         container(currentItem) { item in
             page(item)
         }
     }
 }
+
