@@ -7,7 +7,7 @@ extension View {
     }
 }
 
-extension View {    
+extension View {
     public func border(
         color: Color,
         corderRadius: CGFloat,
@@ -26,61 +26,22 @@ extension View {
 }
 
 extension View {
-    public func swipe<ActionView: View>(
-        action: @escaping () -> (),
-        swipeLockLimit: CGFloat = 100,
-        swipeActionLimit: CGFloat = 150,
-        actionView: @escaping (DeleteViewConfig) -> ActionView
+    public func onSwipeActions<Action: Hashable, ActionView: View>(
+        actions: [Action],
+        limit: CGFloat = 150,
+        actionLimit: CGFloat = 150,
+        buttonTapped: Binding<Bool>,
+        commitAction: (() -> Void)? = nil,
+        @ViewBuilder container: @escaping (Action, SwipeActionConfig) -> ActionView
     ) -> some View {
-        modifier(
-            SwipeToDeleteModifier(
-                onDelete: action,
-                deleteView: actionView,
-                limit: swipeLockLimit,
-                actionLimit: swipeActionLimit
+        self.modifier(
+            SwipeActionModifier(
+                swipeActions: actions,
+                actionLimit: actionLimit,
+                buttonTapped: buttonTapped,
+                commitAction: commitAction,
+                container: container
             )
         )
-    }
-    
-    public func swipeToDelete(
-        swipeLockLimit: CGFloat = 100,
-        swipeActionLimit: CGFloat = 150,
-        deleteButtonBackgroundColor: Color,
-        deleteButtonForegroundColor: Color,
-        action: @escaping () -> ()
-    ) -> some View {
-        modifier(
-            SwipeToDeleteModifier(
-                onDelete: action,
-                deleteView: {
-                    deleteView(
-                        $0,
-                        foregroundColor: deleteButtonForegroundColor,
-                        backgroundColor: deleteButtonBackgroundColor
-                    )
-                },
-                limit: swipeLockLimit,
-                actionLimit: swipeActionLimit
-            )
-        )
-    }
-    
-    private func deleteView(
-        _ config: DeleteViewConfig,
-        foregroundColor: Color,
-        backgroundColor: Color
-    ) -> some View {
-        Text("Delete")
-            .padding()
-            .foregroundColor(foregroundColor)
-            .frame(maxHeight: .infinity)
-            .frame(
-                width: config.swipeStage == .commit ? config.availableWidth : nil,
-                alignment: .leading
-            )
-            .background(backgroundColor)
-            .cornerRadius(config.swipeStage == .commit ? 0 : 8)
-            .padding(.horizontal, config.swipeStage == .commit ? 0 : 8)
-            .scaleEffect(config.progress)
     }
 }
