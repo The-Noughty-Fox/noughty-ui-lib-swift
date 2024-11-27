@@ -10,6 +10,7 @@ import SwiftUI
 public enum SwipeStage: Equatable {
     case initial
     case locked
+    case commit
 }
 
 public struct SwipeActionConfig {
@@ -25,23 +26,30 @@ public struct SwipeActionModifier<Action: Hashable, ActionView: View>: ViewModif
     public let swipeActions: [Action]
     private let actionLimit: CGFloat
     private let container: (Action, SwipeActionConfig) -> ActionView
+    private let commitAction: (() -> Void)?
 
     @State private var limit: CGSize = .zero
-
+    @State private var lock: CGFloat = .infinity
+    @State private var lockOffset: CGFloat = .zero
     @State private var offset: CGFloat = 0
     @State private var currentTranslation: CGSize = .zero
     @State private var feedback: UIImpactFeedbackGenerator?
     @State private var stage: SwipeStage = .initial
     @GestureState private var isActive = false
+    @Binding private var buttonTapped: Bool
 
     public init(
         swipeActions: [Action],
         actionLimit: CGFloat = 150,
+        buttonTapped: Binding<Bool>,
+        commitAction: (() -> Void)? = nil,
         @ViewBuilder container: @escaping (Action, SwipeActionConfig) -> ActionView
     ) {
         self.swipeActions = swipeActions
         self.actionLimit = actionLimit
         self.container = container
+        self._buttonTapped = buttonTapped
+        self.commitAction = commitAction
     }
 
     private func progress(
@@ -49,6 +57,12 @@ public struct SwipeActionModifier<Action: Hashable, ActionView: View>: ViewModif
         limit: CGFloat
     ) -> CGFloat {
         max(min(abs(offset/limit), 1), 0)
+    }
+
+    private func resetPosition() {
+        stage = .initial
+        offset = 0
+        currentTranslation = .zero
     }
 
     private var screenTranslation: CGSize {
@@ -80,10 +94,9 @@ public struct SwipeActionModifier<Action: Hashable, ActionView: View>: ViewModif
                 }
             }
             .observeSize($limit)
-            .frame(maxWidth: limit.width)
             content
                 .offset(x: screenTranslation.width, y: 0)
-                .layoutPriority(10)
+                .layoutPriority(1)
                 .simultaneousGesture(
                     DragGesture(coordinateSpace: .local)
                         .updating($isActive) { (value, state, transaction) in
@@ -103,6 +116,14 @@ public struct SwipeActionModifier<Action: Hashable, ActionView: View>: ViewModif
             stageChanged(old: old, new: new)
         }.onChange(of: isActive) { [old=isActive] new in
             manageGenerator(isActive: old, new: new)
+        }
+        .onChange(of: buttonTapped) { tapped in
+            if tapped {
+                withAnimation(.default) {
+                    resetPosition()
+                }
+                buttonTapped = false
+            }
         }
     }
 }
@@ -124,11 +145,20 @@ private extension SwipeActionModifier {
         // resetting the active drag translation
         currentTranslation = .zero
 
-        switch stage {
-        case .initial:
-            self.offset = 0
-        case .locked:
-            self.offset = -limit.width
+        withAnimation(.spring()){
+            switch stage {
+            case .initial:
+                self.offset = 0
+            case .locked:
+                self.offset = -limit.width
+            case .commit:
+                if let commitAction = commitAction {
+                    commitAction()
+                    resetPosition()
+                } else {
+                    self.offset = -limit.width
+                }
+            }
         }
     }
 }
@@ -138,17 +168,23 @@ private extension SwipeActionModifier {
     func setStage(translation: CGSize) {
         let totalTranslation = (offset + translation.width) * -1 // flipping for ease of use
         var newStage: SwipeStage = .initial
+        lockOffset = min(limit.width,lock)
 
+//        print(lockOffset)
         switch totalTranslation {
-        case ..<limit.width:
+        case ...(lockOffset * 0.4):
             newStage = .initial
-        case limit.width...:
+        case (lockOffset * 0.4)...lockOffset:
             newStage = .locked
+        case (lockOffset * 1.1)...:
+            newStage = commitAction != nil ? .commit : .locked
         default:
-            break;
+            break
         }
 
-        self.stage = newStage
+        if newStage != self.stage {
+            self.stage = newStage
+        }
     }
 
     // Called from @State stage changes through .onChange()
@@ -160,8 +196,7 @@ private extension SwipeActionModifier {
         switch (old, new) {
         case (.initial, .locked):
             fireFeedback(intensity: 0.8)
-        case (.locked, .initial):
-            fireFeedback(intensity: 0.5)
+            lock = limit.width
         default:
             break
         }
@@ -220,11 +255,11 @@ public struct SwipeToDeleteModifier_Previews: PreviewProvider {
         }
     }
 
-    static private func item(for action: TestAction, config: SwipeActionConfig, actionCount: Int = 3) -> some View {
+    static private func item(for action: TestAction, config: SwipeActionConfig, actionCount: Int = 2) -> some View {
         Text(action.title)
             .padding()
-            .frame(width: 90)
             .frame(maxHeight: .infinity)
+            .frame(maxWidth: config.swipeStage == .commit ? (config.itemIndex == actionCount - 1 ? config.availableWidth : 0) : 90)
             .background(action.color)
             .foregroundColor(Color.white)
             .offset(x: CGFloat(actionCount - config.itemIndex) * config.actionContainerWidth/CGFloat(actionCount) * (1 - config.progress))
@@ -232,15 +267,21 @@ public struct SwipeToDeleteModifier_Previews: PreviewProvider {
     }
 
     public static var previews: some View {
+        @State var isTapped: Bool = false
         Color.purple
             .frame(
                 width: 300,
                 height: 60
             )
             .modifier(
-                SwipeActionModifier(swipeActions: [TestAction.pin, TestAction.edit, TestAction.delete]) { action, config in
-                    item(for: action, config: config, actionCount: 3)
-                }
+                SwipeActionModifier(
+                    swipeActions: [TestAction.edit, TestAction.delete],
+                    buttonTapped: $isTapped, commitAction: {print("commit")}) { action, config in
+                        item(for: action, config: config, actionCount: 2)
+                            .onTapGesture {
+                                isTapped = true
+                            }
+                    }
             )
             .border(color: .red, corderRadius: 0, relationToContent: .over, lineWidth: 1)
     }

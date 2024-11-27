@@ -30,12 +30,16 @@ extension View {
         actions: [Action],
         limit: CGFloat = 150,
         actionLimit: CGFloat = 150,
+        buttonTapped: Binding<Bool>,
+        commitAction: (() -> Void)? = nil,
         @ViewBuilder container: @escaping (Action, SwipeActionConfig) -> ActionView
     ) -> some View {
         self.modifier(
             SwipeActionModifier(
                 swipeActions: actions,
                 actionLimit: actionLimit,
+                buttonTapped: buttonTapped,
+                commitAction: commitAction,
                 container: container
             )
         )
